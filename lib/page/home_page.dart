@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wanma_meeting/common/local/local_storage.dart';
 import 'package:wanma_meeting/config/config.dart';
+import 'package:wanma_meeting/dao/data_dao.dart';
 import 'package:wanma_meeting/json/json_string.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -8,6 +9,7 @@ import 'dart:async';
 import 'package:wanma_meeting/page/meeting_list.dart';
 import 'package:wanma_meeting/page/meeting_setup.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MyHomePage extends StatelessWidget {
 
@@ -25,25 +27,10 @@ class MyHomePage extends StatelessWidget {
             ),
           ),
         body: Container(
+          padding: EdgeInsets.only(left: 10, top: 10, right: 10),
           color: Colors.white30,
-          child: Column(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.all(20),
-                child: Text(
-                  '正人、正事、正品',
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'myfont',
-                  ),
-                ),
-              ),
-              HomePageBody(),
-            ],
-          ),
+          child: HomePageBody(),
         ),
-        bottomSheet: ShowTime(),
       ),
       onWillPop: () => _dialogExitApp(context),
     );
@@ -77,197 +64,35 @@ class HomePageBody extends StatefulWidget {
   _HomePageBodyState createState() => _HomePageBodyState();
 }
 
-//class _HomePageBodyState extends State<HomePageBody> {
-//
-//  Future _futureStr;
-//  var _id;
-//
-//  Future _getMeetingDatas() async {
-////    String token = await HttpManager.getAuthorization();
-////    String mid = '0';
-////    var data = await DataDao.getAppMenu(token, mid, allTag, m);
-//    return json.decode(JsonString.mockData);
-//
-////    return data;
-////    }
-//  }
-//
-//  @override
-//  void initState() {
-//    // TODO: implement initState
-//    super.initState();
-//    _getId();
-//    print('homepage initState');
-//  }
-//
-//
-//  _getId() async {
-//    _id = await LocalStorage.get(Config.MEETING_ID);
-//    if(_id == '') {
-//      Navigator.push(
-//          context,
-//          MaterialPageRoute(
-//            builder: (context) => MeetingSetup(),
-//          )
-//      ).then((data) {
-//        _futureStr = _getMeetingDatas();
-//        print(data+'---');
-//        setState(() {
-//
-//        });
-//      }
-//      );
-//    }else {
-//      _futureStr = _getMeetingDatas();
-//      Timer.periodic(Duration(minutes: 5), (timer) {
-//        setState(() {
-//          _futureStr = _getMeetingDatas();
-//        });
-//      });
-//
-//    }
-//  }
-//
-//  _myText(content, flag) {
-//    return Text(
-//      content,
-//      style: TextStyle(fontSize: 20, color: flag ? Colors.blue : Colors.blueGrey),
-//    );
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
-//    print('homepage build');
-//    return FutureBuilder(
-//          future: _futureStr,
-//          builder: (context, snapshot) {
-//            switch(snapshot.connectionState) {
-//              case ConnectionState.waiting:
-//                return Center(child: CircularProgressIndicator(semanticsLabel: '加载中...',),);
-//              case ConnectionState.done:
-//                if(snapshot.hasError) {
-//                  return Text('${snapshot.error}',style: TextStyle(color: Colors.red),);
-//                }else if(snapshot.hasData) {
-//                  if(snapshot.data['code'] == '0') {
-//                    var dataResult = snapshot.data['result'];
-//                    return Center(
-//                      child: Container(
-//                        width: 600,
-//                        height: 400,
-//                        decoration: BoxDecoration(
-//                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-//                          border: Border.all(width: 1),
-//                          image: DecorationImage(
-//                            image: AssetImage('images/login_background.jpg'),
-//                            fit: BoxFit.fill,
-//                          ),
-//                        ),
-//                        child: Column(
-//                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                          children: <Widget>[
-//                            Row(
-//                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                              children: <Widget>[
-//                                _myText(dataResult['curmeeting']['meeting_name'], true),
-//                                _myText(dataResult['curmeeting']['room_desc'], true),
-//                              ],
-//                            ),
-//                            Row(
-//                              mainAxisAlignment: MainAxisAlignment.center,
-//                              children: <Widget>[
-//                                _myText(dataResult['curmeeting']['meeting_time'], false),
-//                              ],
-//                            ),
-//                            Center(
-//                              child: _myText(dataResult['curmeeting']['meeting_subject'], true),
-//                            ),
-//                            Center(child: _myText(dataResult['curmeeting']['meeting_eqp'], false),),
-//                            Center(child: _myText(dataResult['curmeeting']['meeting_hrms'], true),),
-//                            Row(
-//                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                              children: <Widget>[
-//                                RaisedButton(
-//                                  onPressed: () {},
-//                                  child: Text('当前会议'),
-//                                  color: Colors.lightBlue,
-//                                ),
-//                                RaisedButton(
-//                                  onPressed: () {
-//                                    Navigator.push(
-//                                        context,
-//                                        MaterialPageRoute(
-//                                          builder: (context) => MeetingList(dataResult['meetings']),
-//                                        )
-//                                    );
-//                                  },
-//                                  child: Text('会议信息一览'),
-//                                  color: Colors.lightBlue,
-//                                ),
-//                              ],
-//                            ),
-//                          ],
-//                        ),
-//                      ),
-//                    );
-//                  }else {
-//                    return Container();
-//                  }
-//                }else {
-//                  return Container();
-//                }
-//                break;
-//              default:
-//                return Container();
-//                break;
-//            }
-//          },
-//        );
-//  }
-//
-//  @override
-//  void deactivate() async{
-//    // TODO: implement deactivate
-//    super.deactivate();
-//    _id = await LocalStorage.get(Config.MEETING_ID);
-//    if(_id == '') {
-//
-//    }else {
-//      _futureStr = _getMeetingDatas();
-//      if(!mounted) {
-//        return;
-//      }
-//      setState(() {
-//
-//      });
-//      print(_id+'...');
-//    }
-//    print('homepage deactive');
-//  }
-//
-//  @override
-//  void dispose() {
-//    // TODO: implement dispose
-//    super.dispose();
-//    print('homepage dispose');
-//  }
-//}
 
 class _HomePageBodyState extends State<HomePageBody> {
 
-  Future _futureStr;
   var _id;
 
   var resultData;
 
   Future _getMeetingDatas() async {
-//    String token = await HttpManager.getAuthorization();
-//    String mid = '0';
-//    var data = await DataDao.getAppMenu(token, mid, allTag, m);
-    resultData = await json.decode(JsonString.mockData);
-    setState(() {
+    _id = await LocalStorage.get(Config.MEETING_ID);
+    resultData = await DataDao.getAppMenu(_id);
+//    resultData = await json.decode(JsonString.mockData2);
+    if(!mounted) {
+      return;
+    }
+    if(resultData == null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MeetingSetup(),
+          )
+      ).then((data) {
+        _getMeetingDatas();
+      });
+      Fluttertoast.showToast(msg: '无效的会议室Id,请重新设置');
+    }else {
+      setState(() {
 
-    });
+      });
+    }
 //    return data;
 //    }
   }
@@ -291,22 +116,128 @@ class _HomePageBodyState extends State<HomePageBody> {
           )
       ).then((data) {
         _getMeetingDatas();
-        print(data+'---');
+        Timer.periodic(Duration(minutes: 5), (timer) {
+          _getMeetingDatas();
+        });
       }
       );
     }else {
       _getMeetingDatas();
-      Timer.periodic(Duration(minutes: 1), (timer) {
+      Timer.periodic(Duration(minutes: 5), (timer) {
           _getMeetingDatas();
       });
 
     }
   }
 
-  _myText(content, flag) {
-    return Text(
-      content,
-      style: TextStyle(fontSize: 20, color: flag ? Colors.blue : Colors.blueGrey),
+  _getTitleContainer(title) {
+    return Container(
+      height: 60,
+      color: Colors.lightBlue,
+      child: Center(child: Text(title, style: TextStyle(fontSize: 20, color: Colors.white),),),
+    );
+  }
+
+  _getContentContainer(flag, content, dataList) {
+    return TableRowInkWell(
+      onTap: () {
+        _showMeetingMessage(context, dataList[flag]);
+      },
+      child: Container(
+          height: 60,
+          color: (flag%2==1) ? Colors.black12 : Colors.white,
+          child: Center(
+            child: Text(content),
+          )
+      ),
+    );
+  }
+
+  List<TableRow> _tableList(dataList) {
+    TableRow _tableRow;
+    List<TableRow> _tableRowList = <TableRow>[
+      TableRow(
+          children: <Widget>[
+            _getTitleContainer('日期'),
+            _getTitleContainer('时间'),
+            _getTitleContainer('会议主题'),
+            _getTitleContainer('预约人'),
+          ]
+      )
+    ];
+    for(int i = 0;i < dataList.length;i++) {
+      _tableRow = TableRow(
+        children: <Widget>[
+          _getContentContainer(i, dataList[i]['begindate']+' - '+ dataList[i]['enddate'], dataList),
+          _getContentContainer(i, dataList[i]['begintime']+' - '+ dataList[i]['endtime'], dataList),
+          _getContentContainer(i, dataList[i]['meeting_subject'], dataList),
+          _getContentContainer(i, dataList[i]['meeting_container'], dataList),
+        ],
+      );
+      _tableRowList.add(_tableRow);
+    }
+    return _tableRowList;
+  }
+
+  //弹窗会议参与人
+  _showMeetingMessage(context, curMeeting) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('会议信息', textAlign: TextAlign.center,),
+          content: Container(
+            width: 400,
+            padding: EdgeInsets.all(10),
+            child:  Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text('会议主题：'),
+                    Container(
+                      width: 300,
+                      child: Text(
+                        '${curMeeting['meeting_subject']}',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(padding: EdgeInsets.all(5)),
+                Row(
+                  children: <Widget>[
+                    Text('会议时间：'),
+                    Text(
+                      '${curMeeting['begintime']} --- ${curMeeting['endtime']}',
+                      style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                    ),
+                  ],
+                ),
+                Padding(padding: EdgeInsets.all(5)),
+                Expanded(
+                  child: ListView(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Text('参  会  人：'),
+                          Expanded(
+                            child: Text(
+                              '${curMeeting['meeting_hrms']}',
+                              style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
     );
   }
 
@@ -317,61 +248,145 @@ class _HomePageBodyState extends State<HomePageBody> {
     if(resultData != null) {
       if(resultData['code'] == '0') {
         var dataResult = resultData['result'];
+        var curMeeting = dataResult['curmeeting'];
+        var meetings = dataResult['meetings'];
         return Center(
           child: Container(
-            width: 600,
-            height: 400,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              border: Border.all(width: 1),
               image: DecorationImage(
                 image: AssetImage('images/login_background.jpg'),
                 fit: BoxFit.fill,
               ),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    _myText(dataResult['curmeeting']['meeting_name'], true),
-                    _myText(dataResult['curmeeting']['room_desc'], true),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 200,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              width: 200,
+                              height: 120,
+                              color: Colors.blue,
+                              padding: EdgeInsets.all(10),
+                              child: Center(
+                                child: Text(
+                                  '${curMeeting['meeting_name']}',
+                                  style: TextStyle(fontSize: 20, color: Colors.white),),
+                              ),
+                            ),
+                            Container(
+                              width: 200,
+                              height: 50,
+                              padding: EdgeInsets.all(10),
+                              child: Center(
+                                child: Text(
+                                  '当前会议',
+                                  style: TextStyle(fontSize: 20, color: Colors.lightBlue),),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  _showMeetingMessage(context, curMeeting);
+                                },
+                                child: Container(
+                                  width: 200,
+                                  padding: EdgeInsets.all(20),
+                                  color: Colors.white,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      Text(
+                                        '${curMeeting['meeting_subject']}',
+                                        style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                                      ),
+                                      Text(
+                                        '${curMeeting['begintime']} --- ${curMeeting['endtime']}',
+                                        style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                                      ),
+                                      Text(
+                                        '${curMeeting['meeting_container']}',
+                                        style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 200,
+                              height: 30,
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              color: Colors.white,
+                              child: Center(
+                                child: Text(
+                                  '点击该区域或列表项显示详细参会人',
+                                  style: TextStyle(fontSize: 10, color: Colors.red),),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(padding: EdgeInsets.all(10)),
+                      Expanded(
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              height: 60,
+                              padding: EdgeInsets.all(10),
+                              color: Colors.blue,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Image.asset('images/launch_image.png', scale: 3,),
+                                      Padding(padding: EdgeInsets.all(10)),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => MeetingSetup(),
+                                              )
+                                          ).then((data) {
+                                            _getMeetingDatas();
+                                          });
+                                        },
+                                        child: Text('万马集团', style: TextStyle(fontSize: 18,color: Colors.white,),),
+                                      ),
+                                    ],),
+                                  Text('当天会议列表', style: TextStyle(fontSize: 18,color: Colors.white),),
+                                  Text(''),
+                                  Text(''),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                color: Colors.white,
+                                child: ListView(
+                                  children: <Widget>[
+                                    Table(
+                                      children: _tableList(meetings),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    _myText(dataResult['curmeeting']['meeting_time'], false),
-                  ],
-                ),
-                Center(
-                  child: _myText(dataResult['curmeeting']['meeting_subject'], true),
-                ),
-                Center(child: _myText(dataResult['curmeeting']['meeting_eqp'], false),),
-                Center(child: _myText(dataResult['curmeeting']['meeting_hrms'], true),),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    RaisedButton(
-                      onPressed: () {},
-                      child: Text('当前会议'),
-                      color: Colors.lightBlue,
-                    ),
-                    RaisedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MeetingList(dataResult['meetings']),
-                            )
-                        );
-                      },
-                      child: Text('会议信息一览'),
-                      color: Colors.lightBlue,
-                    ),
-                  ],
-                ),
+                Padding(padding: EdgeInsets.all(10),),
+                MyBottomSheet(),
               ],
             ),
           ),
@@ -385,18 +400,18 @@ class _HomePageBodyState extends State<HomePageBody> {
 
   }
 
-  @override
-  void deactivate() async{
-    super.deactivate();
-    print('homepage deactive');
-    _id = await LocalStorage.get(Config.MEETING_ID);
-    if(_id == '') {
-
-    }else {
-      _getMeetingDatas();
-      print(_id+'...');
-    }
-  }
+//  @override
+//  void deactivate() async{
+//    super.deactivate();
+//    print('homepage deactive');
+//    _id = await LocalStorage.get(Config.MEETING_ID);
+//    if(_id == '') {
+//
+//    }else {
+//      _getMeetingDatas();
+//      print(_id+'...');
+//    }
+//  }
 
   @override
   void dispose() {
@@ -404,6 +419,33 @@ class _HomePageBodyState extends State<HomePageBody> {
     print('homepage dispose');
   }
 }
+
+class MyBottomSheet extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 60,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: <Widget>[
+                Image.asset('images/launch_image.png', scale: 3,),
+                Padding(padding: EdgeInsets.all(10)),
+                Text('正人、正事、正品', style: TextStyle(fontSize: 25),),
+              ],
+            ),
+          ),
+          ShowTime(),
+        ],
+      ),
+    );
+  }
+}
+
 
 class ShowTime extends StatefulWidget {
   @override

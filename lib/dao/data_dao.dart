@@ -15,12 +15,11 @@ class DataDao {
       'mid': mid
     };
 
-//    var res = await HttpManager.netFetch(UrlConstant.getMeetingDatas(), requestParams, null, Options(method: 'post'));
-//    if(res != null && res.result) {
-//      return res.data;
-//    }else {
-//      return null;
-//    }
-  return json.decode(JsonString.mockData);
+    var res = await HttpManager.netFetch(UrlConstant.getMeetingDatas(), requestParams, null, Options(method: 'post'));
+    if(res != null && res.result) {
+      return res.data;
+    }else {
+      return null;
+    }
   }
 }
