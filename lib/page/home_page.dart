@@ -131,10 +131,12 @@ class _HomePageBodyState extends State<HomePageBody> {
   }
 
   _getTitleContainer(title) {
-    return Container(
-      height: 60,
-      color: Colors.lightBlue,
-      child: Center(child: Text(title, style: TextStyle(fontSize: 20, color: Colors.white),),),
+    return Expanded(
+      flex: 1,
+      child: Container(
+        height: 60,
+        child: Center(child: Text(title, style: TextStyle(fontSize: 20, color: Colors.white),),),
+      ),
     );
   }
 
@@ -156,14 +158,14 @@ class _HomePageBodyState extends State<HomePageBody> {
   List<TableRow> _tableList(dataList) {
     TableRow _tableRow;
     List<TableRow> _tableRowList = <TableRow>[
-      TableRow(
-          children: <Widget>[
-            _getTitleContainer('日期'),
-            _getTitleContainer('时间'),
-            _getTitleContainer('会议主题'),
-            _getTitleContainer('预约人'),
-          ]
-      )
+//      TableRow(
+//          children: <Widget>[
+//            _getTitleContainer('日期'),
+//            _getTitleContainer('时间'),
+//            _getTitleContainer('会议主题'),
+//            _getTitleContainer('预约人'),
+//          ]
+//      )
     ];
     for(int i = 0;i < dataList.length;i++) {
       _tableRow = TableRow(
@@ -364,6 +366,17 @@ class _HomePageBodyState extends State<HomePageBody> {
                                   Text('当天会议列表', style: TextStyle(fontSize: 18,color: Colors.white),),
                                   Text(''),
                                   Text(''),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              color: Colors.lightBlue,
+                              child: Row(
+                                children: <Widget>[
+                                  _getTitleContainer('日期'),
+                                  _getTitleContainer('时间'),
+                                  _getTitleContainer('会议主题'),
+                                  _getTitleContainer('预约人'),
                                 ],
                               ),
                             ),

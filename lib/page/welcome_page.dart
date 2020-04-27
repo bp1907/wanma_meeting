@@ -22,7 +22,7 @@ class _WelcomePageState extends State<WelcomePage> {
     if(hadInit) return;
     hadInit = true;
     //防止多次进入
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pushReplacementNamed(MyHomePage.sName);
     });
   }

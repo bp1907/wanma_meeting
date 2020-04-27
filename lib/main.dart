@@ -8,6 +8,7 @@ import 'package:wanma_meeting/page/home_page.dart';
 import 'package:wanma_meeting/page/welcome_page.dart';
 
 import 'config/config.dart';
+import 'package:flutter/services.dart';
 
 void main() {
 
@@ -29,6 +30,12 @@ void main() {
   };
 
   runZoned<Future<Null>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();//初始化方法
+    //强制横屏
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight
+    ]);
     runApp(MyApp());
   }, onError: (error, stackTrace) async {
     //do sth for error
