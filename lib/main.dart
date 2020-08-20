@@ -33,10 +33,14 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();//初始化方法
     //强制横屏
     SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight
-    ]);
-    runApp(MyApp());
+//      DeviceOrientation.landscapeLeft,
+//      DeviceOrientation.landscapeRight,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown
+    ]).then((_) {
+      runApp(MyApp());
+    });
+//    runApp(MyApp());
   }, onError: (error, stackTrace) async {
     //do sth for error
     print('error: $error,/n stack: $stackTrace');

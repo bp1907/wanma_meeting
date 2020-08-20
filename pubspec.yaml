@@ -32,6 +32,8 @@ dependencies:
   fluttertoast: ^4.0.1
   #数据存储
   shared_preferences: ^0.4.3
+  #时间格式
+  date_format: ^1.0.8
 
 dev_dependencies:
   flutter_test:
@@ -51,8 +53,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/login_background.jpg
     - images/launch_image.png
+    - images/background.png
+    - images/bottom.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

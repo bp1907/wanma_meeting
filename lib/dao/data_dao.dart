@@ -12,7 +12,7 @@ class DataDao {
   static Future getAppMenu(mid) async{
 
     Map<String, dynamic> requestParams = {
-      'mid': mid
+      'sk': mid
     };
 
     var res = await HttpManager.netFetch(UrlConstant.getMeetingDatas(), requestParams, null, Options(method: 'post'));
