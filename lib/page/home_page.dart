@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wanma_meeting/dao/data_dao.dart';
+import 'package:wanma_meeting/common/utils/screen_utils.dart';
 import 'dart:math' as math;
+
+import 'package:wanma_meeting/json/json_string.dart';
 
 class MyHomePage extends StatelessWidget {
 
@@ -17,7 +21,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      child:Scaffold(
+      child:Transform.scale(scale: 1 / ScreenUtils.getDeviceRate(), child: Transform.rotate(angle: math.pi/2*3, child: Scaffold(
         appBar: PreferredSize(
           preferredSize:Size.fromHeight(100),
           child:SafeArea(
@@ -26,7 +30,6 @@ class MyHomePage extends StatelessWidget {
           ),
         ),
         body:
-//        Transform.rotate(angle: math.pi/2 * 3, child:
         Container(
           decoration: BoxDecoration(
               image: DecorationImage(
@@ -35,11 +38,9 @@ class MyHomePage extends StatelessWidget {
               )
           ),
           padding: EdgeInsets.all(5),
-//          color: Colors.white30,
           child: HomePageBody(),
         ),
-//        ),
-      ),
+      ),),),
       onWillPop: () => _dialogExitApp(context),
     );
   }
@@ -53,23 +54,6 @@ class MyHomePage extends StatelessWidget {
     }else {
       SystemNavigator.pop();
     }
-//    return showDialog(
-//        context: context,
-//        builder: (context) => AlertDialog(
-//          content: Text('确定要退出应用？'),
-//          actions: <Widget>[
-//            FlatButton(
-//                onPressed: () => Navigator.of(context).pop(false),
-//                child: Text('取消')
-//            ),
-//            FlatButton(
-//                onPressed: () {
-//                  Navigator.of(context).pop(true);
-//                },
-//                child: Text('确定')
-//            ),
-//          ],
-//        ));
   }
 }
 
@@ -87,19 +71,15 @@ class _HomePageBodyState extends State<HomePageBody> {
 
   var resultData;
 
-  var timeToDayStr;
   var timeNowStr;
 
   var morningTimeNum;
   var nightTimeNum;
 
-  var width;
-  var height;
-
   Future _getMeetingDatas() async {
     _sk = 'K70qhzmnT6irQgGg';
     resultData = await DataDao.getAppMenu(_sk);
-//    resultData = await json.decode(JsonString.mockData2);
+//    resultData = await json.decode(JsonString.mockData3);
     if(!mounted) {
       return;
     }
@@ -114,8 +94,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   @override
   void initState() {
     super.initState();
-    timeToDayStr = formatDate(DateTime.now(), [m, '月', d, '日']);
-    timeNowStr = formatDate(DateTime.now(), [HH, ':', nn]);
+    timeNowStr = formatDate(DateTime.now(), [yyyy, '年', m, '月', d, '日']);
 
     var tempTime = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd]);
     morningTimeNum = DateTime.parse('$tempTime 08:00:00').millisecondsSinceEpoch;
@@ -124,7 +103,6 @@ class _HomePageBodyState extends State<HomePageBody> {
     _getData();
     print('homepage initState');
   }
-
 
   _getData() async {
     _getMeetingDatas();
@@ -136,31 +114,55 @@ class _HomePageBodyState extends State<HomePageBody> {
     });
   }
 
-  _getTitleContainer(title) {
-    return Expanded(
-      flex: 1,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(width: 2), left: BorderSide(), right: BorderSide(), bottom: BorderSide()),
-        ),
-        height: 60,
-        child: Center(child: Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    print('eeewidth: ${ScreenUtils.getDeviceW()}, height: ${ScreenUtils.getDeviceH()}');
+    print('homepage build');
+    if(resultData != null) {
+      if(resultData['code'] == '0') {
+        var dataResult = resultData['result'];
+        var meetings = dataResult['meetings'];
+        return getWidget(meetings, dataResult['meetingAdmin'], true);
+      }else {
+        return getWidget(null, '', false);
+      }
+    }else {
+      return getWidget(null, '', false);
+    }
+
+  }
+
+  _getTitleContainer(title, flex, isLast) {
+    return Container(
+//        decoration: BoxDecoration(
+//          border: !isLast ? Border(top: BorderSide(width: ScreenUtils.getDeviceRate()),
+//              left: BorderSide(width: ScreenUtils.getDeviceRate())) :
+//          Border(top: BorderSide(width: ScreenUtils.getDeviceRate()),
+//            left: BorderSide(width: ScreenUtils.getDeviceRate()),
+//            right: BorderSide(width: ScreenUtils.getDeviceRate()),
+//          ),
+//        ),
+      height: ScreenUtils.getItemH(),
+      child: Center(child: Text(title, style: TextStyle(fontSize: 20 * ScreenUtils.getDeviceRate(), fontWeight: FontWeight.w600),),),
     );
   }
 
   _getContentContainer(flag, content, dataList) {
     return TableRowInkWell(
       onTap: () {
-        _showMeetingMessage(context, dataList[flag]);
+        if(dataList != null) {
+          _showMeetingMessage(context, dataList[flag]);
+        }
       },
-      child: Container(
-          height: 60,
+      child:
+      Container(
+//          height: ScreenUtils.getItemH(),
 //          color: (flag%2==1) ? Colors.black12 : Colors.white,
           child: Center(
             child: Padding(
               padding: EdgeInsets.all(5),
-              child: Text(content),
+              child: Text(content, style: TextStyle(fontSize: 15 * ScreenUtils.getDeviceRate()),),
             ),
           )
       ),
@@ -169,7 +171,17 @@ class _HomePageBodyState extends State<HomePageBody> {
 
   List<TableRow> _tableList(dataList) {
     TableRow _tableRow;
-    List<TableRow> _tableRowList = <TableRow>[];
+    List<TableRow> _tableRowList = <TableRow>[
+      TableRow(
+        children: <Widget>[
+          _getTitleContainer('会议项目', 4, false),
+          _getTitleContainer('会议室', 3, false),
+          _getTitleContainer('预定时间', 3, false),
+          _getTitleContainer('联系人', 2, false),
+          _getTitleContainer('人数', 2, true),
+        ],
+      )
+    ];
     for(int i = 0;i < dataList.length;i++) {
       _tableRow = TableRow(
         children: <Widget>[
@@ -182,6 +194,21 @@ class _HomePageBodyState extends State<HomePageBody> {
       );
       _tableRowList.add(_tableRow);
     }
+//    if(dataList.length < 13) {
+//      var tempLength = 13 - dataList.length;
+//      for(int i = 0; i<tempLength;i++) {
+//        _tableRow = TableRow(
+//          children: <Widget>[
+//            _getContentContainer(i, '', null),
+//            _getContentContainer(i, '', null),
+//            _getContentContainer(i, '', null),
+//            _getContentContainer(i, '', null),
+//            _getContentContainer(i, '', null),
+//          ],
+//        );
+//        _tableRowList.add(_tableRow);
+//      }
+//    }
     return _tableRowList;
   }
 
@@ -247,161 +274,74 @@ class _HomePageBodyState extends State<HomePageBody> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
-    width = MediaQuery.of(context).size.width;
-    height = MediaQuery.of(context).size.height;
-    print('width: $width, height: $height');
-    print('homepage build');
-    if(resultData != null) {
-      if(resultData['code'] == '0') {
-        var dataResult = resultData['result'];
-        var meetings = dataResult['meetings'];
-        return Center(
-          child: Container(
-//            width: height,
-//            height: width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-//              image: DecorationImage(
-//                image: AssetImage('images/background.png'),
-//                fit: BoxFit.fill,
-//              ),
-            ),
-            child: Column(
-              children: <Widget>[
-                MyBottomSheet(timeToDayStr, timeNowStr),
-                Expanded(
-                  child:Column(
-                    children: <Widget>[
-                      Container(
-//                        color: Colors.lightBlue,
-                        child: Row(
-                          children: <Widget>[
-                            _getTitleContainer('会议项目'),
-                            _getTitleContainer('会议室名称'),
-                            _getTitleContainer('预定时间'),
-                            _getTitleContainer('联系人'),
-                            _getTitleContainer('人数'),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
+  getWidget(List meetings, String meetingAdmin, bool hasTableList) {
+    return Center(
+      child: Container(
+        width: ScreenUtils.getDeviceH() * ScreenUtils.getDeviceRate(),
+        height: ScreenUtils.getDeviceH(),
+        padding: EdgeInsets.only(left: 2, right: 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: Column(
+          children: <Widget>[
+            Padding(padding: EdgeInsets.all(15 * ScreenUtils.getDeviceRate()),),
+            MyBottomSheet(timeNowStr),
+            Expanded(
+              child:Column(
+                children: <Widget>[
+//                  Container(
+//                    height: ScreenUtils.getItemH(),
+//                    child: Row(
+//                      children: <Widget>[
+//                        _getTitleContainer('会议项目', 4, false),
+//                        _getTitleContainer('会议室', 3, false),
+//                        _getTitleContainer('预定时间', 3, false),
+//                        _getTitleContainer('联系人', 2, false),
+//                        _getTitleContainer('人数', 2, true),
+//                      ],
+//                    ),
+//                  ),
+                  Expanded(
+                    child: hasTableList ? Container(
 //                          color: Colors.white,
-                          child: ListView(
-                            children: <Widget>[
-                              Table(
-                                border: TableBorder.all(width: 1),
-                                children: _tableList(meetings),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  height: height * 0.25,
-                  child: Image.asset('images/bottom.png', width: width, fit: BoxFit.fill,),
-                ),
-              ],
-            ),
-          ),
-        );
-      }else {
-        return Center(
-          child: Container(
-//            width: height,
-//            height: width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              image: DecorationImage(
-                image: AssetImage('images/background.png'),
-                fit: BoxFit.fill,
-              ),
-            ),
-            child: Column(
-              children: <Widget>[
-                MyBottomSheet(timeToDayStr, timeNowStr),
-                Expanded(
-                  child:Column(
-                    children: <Widget>[
-                      Container(
-//                        color: Colors.lightBlue,
-                        child: Row(
-                          children: <Widget>[
-                            _getTitleContainer('会议项目'),
-                            _getTitleContainer('会议室名称'),
-                            _getTitleContainer('预定时间'),
-                            _getTitleContainer('联系人'),
-                            _getTitleContainer('人数'),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  height: height * 0.25,
-                  child: Image.asset('images/bottom.png', width: width, fit: BoxFit.fill,),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }else {
-      return Center(
-        child: Container(
-//          width: height,
-//          height: width,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-            image: DecorationImage(
-              image: AssetImage('images/background.png'),
-              fit: BoxFit.fill,
-            ),
-          ),
-          child: Column(
-            children: <Widget>[
-              MyBottomSheet(timeToDayStr, timeNowStr),
-              Expanded(
-                child:Column(
-                  children: <Widget>[
-                    Container(
-//                        color: Colors.lightBlue,
-                      child: Row(
+                      child: ListView(
                         children: <Widget>[
-                          _getTitleContainer('会议项目'),
-                          _getTitleContainer('会议室名称'),
-                          _getTitleContainer('预定时间'),
-                          _getTitleContainer('联系人'),
-                          _getTitleContainer('人数'),
+                          Table(
+                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                            border: TableBorder.all(width: ScreenUtils.getDeviceRate()),
+                            columnWidths: {
+                              0 : FlexColumnWidth(ScreenUtils.getDeviceH() * ScreenUtils.getDeviceRate() /7 *2),
+                              1 : FlexColumnWidth(ScreenUtils.getDeviceH() * ScreenUtils.getDeviceRate() /14 *3),
+                              2 : FlexColumnWidth(ScreenUtils.getDeviceH() * ScreenUtils.getDeviceRate() /14 *3),
+                              3 : FlexColumnWidth(ScreenUtils.getDeviceH() * ScreenUtils.getDeviceRate() /7),
+                              4 : FlexColumnWidth(ScreenUtils.getDeviceH() * ScreenUtils.getDeviceRate() /7),
+                            },
+                            children: _tableList(meetings),
+                          )
                         ],
                       ),
-                    ),
-                    Expanded(
-                      child: Container(),
-                    ),
-                  ],
+                    ) : Container(),
+                  ),
+                ],
+              ),
+            ),
+            Stack(
+              children: <Widget>[
+                Container(
+                  height: ScreenUtils.getDeviceH() * 0.3 - 1,
+                  child: Image.asset('images/bottom.png', width: ScreenUtils.getDeviceH() * ScreenUtils.getDeviceRate(), fit: BoxFit.fill,),
                 ),
-              ),
-              Container(
-                height: height * 0.25,
-                child: Image.asset('images/bottom.png', width: width, fit: BoxFit.fill,),
-              ),
-            ],
-          ),
+                Positioned(
+                  top: 10,
+                    right: 10,
+                    child: Text(meetingAdmin, style: TextStyle(fontSize: 18 * ScreenUtils.getDeviceRate()),),),
+              ],
+            ),
+          ],
         ),
-      );
-    }
-
+      ),
+    );
   }
 
   @override
@@ -413,31 +353,29 @@ class _HomePageBodyState extends State<HomePageBody> {
 
 class MyBottomSheet extends StatelessWidget {
 
-  final String dayStr;
   final String timeStr;
-  MyBottomSheet(this.dayStr,this.timeStr);
+
+  var width;
+  var height;
+  var rate;
+  MyBottomSheet(this.timeStr);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
-//      color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      height: 80 * ScreenUtils.getDeviceRate(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            width: 100,
-          ),
-          Container(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(2),
             child: Center(
-              child: Text('$dayStr会议室使用情况', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+              child: Text('万马创新园会议室预定情况', style: TextStyle(fontSize: 22 * ScreenUtils.getDeviceRate(), fontWeight: FontWeight.bold),),
             ),
           ),
           Container(
-            width: 100,
-            padding: EdgeInsets.all(10),
-//            alignment: Alignment.bottomCenter,
+            padding: EdgeInsets.all(2),
             child: ShowTime(timeStr),
           ),
         ],
@@ -458,40 +396,32 @@ class ShowTime extends StatefulWidget {
 
 class _ShowTimeState extends State<ShowTime> {
 
-  var currentTime = '';
+//  var currentTime = '';
 
   @override
   void initState() {
     super.initState();
-    currentTime = widget.currentTime;
-    Timer.periodic(Duration(minutes: 1), (timer) {
-      if(!mounted) {
-        return;
-      }
-      setState(() {
-        currentTime = formatDate(DateTime.now(), [HH, ':', nn]);
-      });
-    });
+//    currentTime = widget.currentTime;
+//    Timer.periodic(Duration(minutes: 1), (timer) {
+//      if(!mounted) {
+//        return;
+//      }
+//      setState(() {
+//        currentTime = formatDate(DateTime.now(), [yyyy, '年', m, '月', d, '日']);
+//      });
+//    });
   }
 
   @override
   Widget build(BuildContext context) {
     print('showtime build');
     return Container(
-      margin: EdgeInsets.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Text.rich(
-            TextSpan(children: [
-              TextSpan(
-                  text: currentTime,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                  ))
-            ]),
-          )
-        ],
+      width: ScreenUtils.getDeviceW(),
+      padding: EdgeInsets.only(top: 5, right: 5),
+      child: Text(
+          widget.currentTime,
+        textAlign: TextAlign.end,
+        style: TextStyle(fontSize: 20 * ScreenUtils.getDeviceRate(), fontWeight: FontWeight.w400),
       ),
     );
   }

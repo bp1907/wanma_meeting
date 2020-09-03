@@ -34,6 +34,8 @@ dependencies:
   shared_preferences: ^0.4.3
   #时间格式
   date_format: ^1.0.8
+#  orientation: ^1.2.0
+  flutter_screenutil: ^2.3.0
 
 dev_dependencies:
   flutter_test:

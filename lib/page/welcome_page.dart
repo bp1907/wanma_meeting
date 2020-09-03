@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:wanma_meeting/page/home_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class WelcomePage extends StatefulWidget {
 
@@ -29,6 +30,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context);
     return Container(
           color: Colors.white,
           child: Image.asset('images/launch_image.png',),
